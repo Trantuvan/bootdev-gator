@@ -1,7 +1,6 @@
 package config
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -28,14 +27,15 @@ func Read() Config {
 		return config
 	}
 
-	file, err := os.ReadFile(configPath)
+	file, err := os.Open(configPath)
 
 	if err != nil {
 		log.Fatalf("cannot open file %s", err)
 		return config
 	}
 
-	decoder := json.NewDecoder(bytes.NewBuffer(file))
+	defer file.Close()
+	decoder := json.NewDecoder(file)
 
 	if err := decoder.Decode(&config); err != nil {
 		log.Fatalf("error parsing json into struct %s", err)
