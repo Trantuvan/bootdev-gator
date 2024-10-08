@@ -8,10 +8,7 @@ import (
 	"path/filepath"
 )
 
-const (
-	permReadWrite         = 0644
-	configFileName string = ".gatorconfig.json"
-)
+const configFileName string = ".gatorconfig.json"
 
 type Config struct {
 	DbURL           string `json:"db_url"`
@@ -35,6 +32,7 @@ func Read() Config {
 	}
 
 	defer file.Close()
+	//* create decoder from place to read
 	decoder := json.NewDecoder(file)
 
 	if err := decoder.Decode(&config); err != nil {
@@ -62,20 +60,24 @@ func getConfigFilePath() (string, error) {
 }
 
 func write(cfg Config) error {
-	jsonData, err := json.Marshal(cfg)
-
-	if err != nil {
-		return fmt.Errorf("error cannot parse struct into json %w", err)
-	}
-
 	configPath, err := getConfigFilePath()
 
 	if err != nil {
 		return err
 	}
 
-	if err := os.WriteFile(configPath, jsonData, permReadWrite); err != nil {
-		return fmt.Errorf("error cannot write to disk %w", err)
+	//* if file exist overwrite; create new file
+	file, err := os.Create(configPath)
+
+	if err != nil {
+		return fmt.Errorf("path error %w", err)
+	}
+
+	//* create encoder from place to write
+	encoder := json.NewEncoder(file)
+
+	if err := encoder.Encode(cfg); err != nil {
+		return fmt.Errorf("error cannot parse struct into json %w", err)
 	}
 
 	return nil
