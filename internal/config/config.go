@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -15,20 +14,18 @@ type Config struct {
 	CurrentUserName string `json:"current_user_name"`
 }
 
-func Read() Config {
+func Read() (Config, error) {
 	var config Config
 	configPath, err := getConfigFilePath()
 
 	if err != nil {
-		log.Fatalf("%s", err)
-		return config
+		return config, fmt.Errorf("get config path: %w", err)
 	}
 
 	file, err := os.Open(configPath)
 
 	if err != nil {
-		log.Fatalf("cannot open file %s", err)
-		return config
+		return config, fmt.Errorf("open file: %w", err)
 	}
 
 	defer file.Close()
@@ -36,23 +33,22 @@ func Read() Config {
 	decoder := json.NewDecoder(file)
 
 	if err := decoder.Decode(&config); err != nil {
-		log.Fatalf("error parsing json into struct %s", err)
-		return config
+		return config, fmt.Errorf("decode config: %w", err)
 	}
 
-	return config
+	return config, nil
 }
 
-func (cfg *Config) SetUser(username string) {
+func (cfg *Config) SetUser(username string) error {
 	cfg.CurrentUserName = username
-	write(*cfg)
+	return write(*cfg)
 }
 
 func getConfigFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 
 	if err != nil {
-		return "", fmt.Errorf("error cannot find $HOME enviroment variable %w", err)
+		return "", fmt.Errorf("cannot find $HOME enviroment variable: %w", err)
 	}
 
 	configPath := filepath.Join(homeDir, configFileName)
@@ -63,21 +59,21 @@ func write(cfg Config) error {
 	configPath, err := getConfigFilePath()
 
 	if err != nil {
-		return err
+		return fmt.Errorf("get path config: %w", err)
 	}
 
 	//* if file exist overwrite; create new file
 	file, err := os.Create(configPath)
 
 	if err != nil {
-		return fmt.Errorf("path error %w", err)
+		return fmt.Errorf("create file: %w", err)
 	}
 
 	//* create encoder from place to write
 	encoder := json.NewEncoder(file)
 
 	if err := encoder.Encode(cfg); err != nil {
-		return fmt.Errorf("error cannot parse struct into json %w", err)
+		return fmt.Errorf("encode config: %w", err)
 	}
 
 	return nil

@@ -12,21 +12,26 @@ type state struct {
 }
 
 func main() {
-	cfg := config.Read()
+	cfg, err := config.Read()
+
+	if err != nil {
+		log.Fatalf("failed to read config: %v", err)
+	}
+
 	commands := commands{}
 	state := state{config: &cfg}
 	commandLineArgs := os.Args
 
 	if len(commandLineArgs) < 2 {
-		log.Fatal("you've must provide arg for command")
+		log.Fatal("Usage: cli <command> [args...]")
 	}
 
 	commandArgs := commandLineArgs[1:]
 	loginCommand := command{name: commandArgs[0], args: commandArgs[1:]}
 	commands.register(loginCommand.name, handlerLogin)
-	err := commands.run(&state, loginCommand)
+	errRun := commands.run(&state, loginCommand)
 
-	if err != nil {
-		log.Fatal(err)
+	if errRun != nil {
+		log.Fatalf("failed to run: %v", errRun)
 	}
 }
