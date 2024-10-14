@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -11,13 +10,6 @@ import (
 type state struct {
 	config *config.Config
 }
-
-type command struct {
-	name string
-	args []string
-}
-
-type commands map[string]func(*state, command) error
 
 func main() {
 	cfg := config.Read()
@@ -37,36 +29,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (commands commands) register(name string, f func(*state, command) error) {
-	commands[name] = f
-}
-
-func (commands commands) run(state *state, command command) error {
-	if state == nil {
-		return fmt.Errorf("command: %s state is not exiest", command.name)
-	}
-
-	cmd, ok := commands[command.name]
-
-	if !ok {
-		return fmt.Errorf("command: %s is not exiest", command.name)
-	}
-
-	if err := cmd(state, command); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func handlerLogin(state *state, command command) error {
-	if len(command.args) == 0 {
-		return fmt.Errorf("command: login expected 1 arg username")
-	}
-
-	state.config.SetUser(command.args[0])
-	fmt.Printf("username: %s has been set", state.config.CurrentUserName)
-	return nil
 }
