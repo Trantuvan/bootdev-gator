@@ -1,15 +1,15 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE users(
-    id uuid DEFAULT gen_random_uuid(),
+    id UUID DEFAULT gen_random_uuid(),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    name TEXT NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     PRIMARY KEY (id)
-);
+)
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE users;
+DROP TABLE users; 
 -- +goose StatementEnd
