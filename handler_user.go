@@ -51,6 +51,24 @@ func handlerRegister(state *state, command command) error {
 	return nil
 }
 
+func handlerUsers(state *state, command command) error {
+	users, err := state.db.GetUsers(context.Background())
+
+	if err != nil {
+		return fmt.Errorf("faild to query all users %w", err)
+	}
+
+	for _, user := range users {
+		if state.config.CurrentUserName == user.Name {
+			fmt.Printf(" * %s (current)\n", user.Name)
+		} else {
+			fmt.Printf(" * %s\n", user.Name)
+		}
+	}
+
+	return nil
+}
+
 func printUser(user database.User) {
 	fmt.Printf(" * ID: %s\n", user.ID)
 	fmt.Printf(" * Name: %s\n", user.Name)
