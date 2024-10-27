@@ -46,6 +46,12 @@ func handlerRegister(state *state, command command) error {
 	}
 
 	state.config.SetUser(createdUser.Name)
-	fmt.Printf("the user is created: %v+", createdUser)
+	fmt.Println("User created successfully!")
+	printUser(createdUser)
 	return nil
+}
+
+func printUser(user database.User) {
+	fmt.Printf(" * ID: %s\n", user.ID)
+	fmt.Printf(" * Name: %s\n", user.Name)
 }
