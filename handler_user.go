@@ -1,16 +1,51 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"os"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/trantuvan/bootdev-gator/internal/database"
+)
 
 func handlerLogin(state *state, command command) error {
 	if len(command.args) == 0 {
 		return fmt.Errorf("command: login expected 1 arg username")
 	}
 
-	if err := state.config.SetUser(command.args[0]); err != nil {
+	exiestedUser, err := state.db.GetUser(context.Background(), command.args[0])
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	if err := state.config.SetUser(exiestedUser.Name); err != nil {
 		return fmt.Errorf("failed to set user: %w", err)
 	}
 
 	fmt.Printf("username: %s has been set", state.config.CurrentUserName)
+	return nil
+}
+
+func handlerRegister(state *state, command command) error {
+	if len(command.args) == 0 {
+		return fmt.Errorf("command: register expected 1 arg username")
+	}
+
+	createdUser, err := state.db.CreateUser(context.Background(), database.CreateUserParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      command.args[0],
+	})
+
+	if err != nil {
+		return fmt.Errorf("faild to register new user: %w", err)
+	}
+
+	state.config.SetUser(createdUser.Name)
+	fmt.Printf("the user is created: %v+", createdUser)
 	return nil
 }
