@@ -28,6 +28,7 @@ func main() {
 		log.Fatalf("Failed to connect to postgres: %v", err)
 	}
 
+	defer db.Close()
 	commands := commands{}
 	state := state{config: &cfg, db: database.New(db)}
 	commandLineArgs := os.Args
