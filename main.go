@@ -41,6 +41,7 @@ func main() {
 	command := command{name: commandArgs[0], args: commandArgs[1:]}
 	commands.register("login", handlerLogin)
 	commands.register("register", handlerRegister)
+	commands.register("reset", handlerReset)
 	errRun := commands.run(&state, command)
 
 	if errRun != nil {

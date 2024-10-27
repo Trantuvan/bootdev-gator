@@ -51,6 +51,17 @@ func handlerRegister(state *state, command command) error {
 	return nil
 }
 
+func handlerReset(state *state, command command) error {
+	err := state.db.DeleteUsers(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("reset users tbl successful!")
+	return nil
+}
+
 func printUser(user database.User) {
 	fmt.Printf(" * ID: %s\n", user.ID)
 	fmt.Printf(" * Name: %s\n", user.Name)
