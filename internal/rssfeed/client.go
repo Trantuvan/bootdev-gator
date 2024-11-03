@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-type Client struct {
+type client struct {
 	httpClient http.Client
 	timeout    time.Duration
 }
 
-func NewClient(timeout time.Duration) Client {
-	return Client{httpClient: http.Client{}, timeout: timeout}
+func NewClient(timeout time.Duration) client {
+	return client{httpClient: http.Client{}, timeout: timeout}
 }
