@@ -39,6 +39,20 @@ func handlerAddFeed(state *state, command command) error {
 	return nil
 }
 
+func handlerFeeds(state *state, command command) error {
+	feedUsers, err := state.db.GetFeeds(context.Background())
+
+	if err != nil {
+		return fmt.Errorf("command: failed to get all feeds %w", err)
+	}
+
+	for _, feedUser := range feedUsers {
+		fmt.Printf(" * FeedName: %s\n", feedUser.FeedName)
+		fmt.Printf(" * FeedUrl: %s\n", feedUser.Url)
+		fmt.Printf(" * UserName: %s\n", feedUser.UserName)
+	}
+	return nil
+}
 func printFeed(feed database.Feed) {
 	fmt.Printf(" * ID: %s\n", feed.ID)
 	fmt.Printf(" * Name: %s\n", feed.Name)
