@@ -27,7 +27,7 @@ func handlerAddFeed(state *state, command command) error {
 		Url:       command.args[1],
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    uuid.NullUUID{UUID: currentUser.ID, Valid: true},
+		UserID:    currentUser.ID,
 	})
 
 	if errFeed != nil {

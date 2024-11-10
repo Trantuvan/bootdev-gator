@@ -2,13 +2,12 @@
 -- +goose StatementBegin
 CREATE TABLE feeds(
     id UUID DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    url TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    user_id UUID REFERENCES users (id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL UNIQUE,
     PRIMARY KEY (id),
-    FOREIGN KEY(user_id) REFERENCES users (id)
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 )
 -- +goose StatementEnd
 

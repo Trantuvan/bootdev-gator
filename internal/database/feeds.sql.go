@@ -22,7 +22,7 @@ VALUES (
     $5,
     $6
 )
-RETURNING id, name, url, created_at, updated_at, user_id
+RETURNING id, created_at, updated_at, name, url, user_id
 `
 
 type CreateFeedParams struct {
@@ -31,7 +31,7 @@ type CreateFeedParams struct {
 	Url       string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    uuid.NullUUID
+	UserID    uuid.UUID
 }
 
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {
@@ -46,10 +46,10 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	var i Feed
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.Url,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Name,
+		&i.Url,
 		&i.UserID,
 	)
 	return i, err
