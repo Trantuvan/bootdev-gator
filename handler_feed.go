@@ -14,14 +14,14 @@ func handlerAddFeed(state *state, command command) error {
 		return fmt.Errorf("command: addFeed expected 2 args name url")
 	}
 
-	context := context.Background()
-	currentUser, err := state.db.GetUser(context, state.config.CurrentUserName)
+	ctx := context.Background()
+	currentUser, err := state.db.GetUser(ctx, state.config.CurrentUserName)
 
 	if err != nil {
 		return fmt.Errorf("command: addFeed cannot get current user %w", err)
 	}
 
-	feed, errFeed := state.db.CreateFeed(context, database.CreateFeedParams{
+	feed, errFeed := state.db.CreateFeed(ctx, database.CreateFeedParams{
 		ID:        uuid.New(),
 		Name:      command.args[0],
 		Url:       command.args[1],
@@ -32,6 +32,18 @@ func handlerAddFeed(state *state, command command) error {
 
 	if errFeed != nil {
 		return fmt.Errorf("command: addFeed cannot create new feed %w", errFeed)
+	}
+
+	_, err = state.db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    currentUser.ID,
+		FeedID:    feed.ID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("command: addFeed cannot follow user created feed %w", err)
 	}
 
 	fmt.Println("Feed created successfully!")
