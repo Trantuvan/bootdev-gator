@@ -9,18 +9,12 @@ import (
 	"github.com/trantuvan/bootdev-gator/internal/database"
 )
 
-func handlerFollow(state *state, command command) error {
+func handlerFollow(state *state, command command, user database.User) error {
 	if len(command.args) == 0 {
 		return fmt.Errorf("command: follow expected 1 arg url")
 	}
 
 	ctx := context.Background()
-	currentUser, err := state.db.GetUser(ctx, state.config.CurrentUserName)
-
-	if err != nil {
-		return fmt.Errorf("command: follow cannot get current user %w", err)
-	}
-
 	followFeed, err := state.db.GetFeed(ctx, command.args[0])
 
 	if err != nil {
@@ -31,7 +25,7 @@ func handlerFollow(state *state, command command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 		FeedID:    followFeed.ID,
 	})
 
@@ -43,8 +37,8 @@ func handlerFollow(state *state, command command) error {
 	return nil
 }
 
-func handlerFollowing(state *state, command command) error {
-	feeds, err := state.db.GetFeedFollowsForUser(context.Background(), state.config.CurrentUserName)
+func handlerFollowing(state *state, command command, user database.User) error {
+	feeds, err := state.db.GetFeedFollowsForUser(context.Background(), user.Name)
 
 	if err != nil {
 		return fmt.Errorf("command: following cannot get feeds currentUser %w", err)

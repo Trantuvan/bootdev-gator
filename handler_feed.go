@@ -9,36 +9,30 @@ import (
 	"github.com/trantuvan/bootdev-gator/internal/database"
 )
 
-func handlerAddFeed(state *state, command command) error {
+func handlerAddFeed(state *state, command command, user database.User) error {
 	if len(command.args) < 2 {
 		return fmt.Errorf("command: addFeed expected 2 args name url")
 	}
 
 	ctx := context.Background()
-	currentUser, err := state.db.GetUser(ctx, state.config.CurrentUserName)
-
-	if err != nil {
-		return fmt.Errorf("command: addFeed cannot get current user %w", err)
-	}
-
 	feed, errFeed := state.db.CreateFeed(ctx, database.CreateFeedParams{
 		ID:        uuid.New(),
 		Name:      command.args[0],
 		Url:       command.args[1],
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 	})
 
 	if errFeed != nil {
 		return fmt.Errorf("command: addFeed cannot create new feed %w", errFeed)
 	}
 
-	_, err = state.db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
+	_, err := state.db.CreateFeedFollow(ctx, database.CreateFeedFollowParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 		FeedID:    feed.ID,
 	})
 
@@ -65,6 +59,7 @@ func handlerFeeds(state *state, command command) error {
 	}
 	return nil
 }
+
 func printFeed(feed database.Feed) {
 	fmt.Printf(" * ID: %s\n", feed.ID)
 	fmt.Printf(" * Name: %s\n", feed.Name)

@@ -39,15 +39,15 @@ func main() {
 
 	commandArgs := commandLineArgs[1:]
 	command := command{name: commandArgs[0], args: commandArgs[1:]}
-	commands.register("login", handlerLogin)
 	commands.register("register", handlerRegister)
+	commands.register("login", handlerLogin)
 	commands.register("reset", handlerReset)
 	commands.register("users", handlerUsers)
 	commands.register("agg", handlerAgg)
-	commands.register("addfeed", handlerAddFeed)
+	commands.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	commands.register("feeds", handlerFeeds)
-	commands.register("follow", handlerFollow)
-	commands.register("following", handlerFollowing)
+	commands.register("follow", middlewareLoggedIn(handlerFollow))
+	commands.register("following", middlewareLoggedIn(handlerFollowing))
 	errRun := commands.run(&state, command)
 
 	if errRun != nil {
