@@ -18,6 +18,7 @@ func middlewareLoggedIn(handler func(state *state, command command, user databas
 		}
 
 		//* 2. exec handler, (handler value is error)
+		//* return error of wrapped handler (no swallow error)
 		return handler(state, command, user)
 	}
 }
