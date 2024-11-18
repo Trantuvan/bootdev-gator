@@ -32,8 +32,8 @@ func handlerBrowse(state *state, command command, user database.User) error {
 
 	for _, post := range posts {
 		fmt.Printf("* Title: %s\n", post.Title)
-		fmt.Printf("* PubDate: %v+\n", post.PublishedAt)
-		fmt.Printf("* Desc: %v\n", post.Description)
+		fmt.Printf("* PubDate: %v\n", post.PublishedAt.Time)
+		fmt.Printf("* Desc: %v\n", post.Description.String)
 	}
 	return nil
 }
