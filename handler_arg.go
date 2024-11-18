@@ -57,10 +57,14 @@ func scrapeFeeds(state *state) error {
 	}
 
 	for _, item := range feedData.Channel.Item {
-		publishedAt, errPub := time.Parse(time.RFC1123Z, item.PubDate)
+		publishedAt := sql.NullTime{}
 
-		if errPub != nil {
-			return fmt.Errorf("scrapeFeeds: failed to parse published date %w", errPub)
+		//* err == nil -> not err Valid true
+		if t, err := time.Parse(time.RFC1123Z, item.PubDate); err == nil {
+			publishedAt = sql.NullTime{
+				Time:  t,
+				Valid: true,
+			}
 		}
 
 		_, err := state.db.CreatePost(ctx, database.CreatePostParams{
