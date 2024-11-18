@@ -2,11 +2,18 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/trantuvan/bootdev-gator/internal/database"
 	"github.com/trantuvan/bootdev-gator/internal/rssfeed"
 )
+
+var ErrDupUrlKey = errors.New("pq: duplicate key value violates unique constraint")
 
 func handlerAgg(state *state, command command) error {
 	if len(command.args) < 1 || len(command.args) >= 2 {
@@ -49,7 +56,22 @@ func scrapeFeeds(state *state) error {
 	}
 
 	for _, item := range feedData.Channel.Item {
-		fmt.Printf("Found post: %s\n", item.Title)
+		publishedAt, errPub := time.Parse(time.UnixDate, item.PubDate)
+
+		_, err := state.db.CreatePost(ctx, database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: sql.NullString{String: item.Description, Valid: true},
+			PublishedAt: sql.NullTime{Time: publishedAt, Valid: errPub != nil},
+			FeedID:      nextFeed.ID,
+		})
+
+		if err != nil && err != ErrDupUrlKey {
+			log.Printf("scrapeFeeds: cannot create post from url:%s -> %v", nextFeed.Url, err)
+		}
 	}
 
 	fmt.Printf("Feed %s collected, %v posts found", nextFeed.Name, len(feedData.Channel.Item))
