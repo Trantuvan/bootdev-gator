@@ -26,7 +26,7 @@ func handlerAgg(state *state, command command) error {
 		return fmt.Errorf("command %s: duration wrong format %w", command.name, err)
 	}
 
-	fmt.Printf("Collecting feeds every %s...", timeBetweenRequests)
+	fmt.Printf("Collecting feeds every %s...\n", timeBetweenRequests)
 
 	for range time.Tick(timeBetweenRequests) {
 		scrapeFeeds(state)
@@ -56,7 +56,11 @@ func scrapeFeeds(state *state) error {
 	}
 
 	for _, item := range feedData.Channel.Item {
-		publishedAt, errPub := time.Parse(time.UnixDate, item.PubDate)
+		publishedAt, errPub := time.Parse(time.RFC1123Z, item.PubDate)
+
+		if errPub != nil {
+			return fmt.Errorf("scrapeFeeds: failed to parse published date %w", errPub)
+		}
 
 		_, err := state.db.CreatePost(ctx, database.CreatePostParams{
 			ID:          uuid.New(),
@@ -65,7 +69,7 @@ func scrapeFeeds(state *state) error {
 			Title:       item.Title,
 			Url:         item.Link,
 			Description: sql.NullString{String: item.Description, Valid: true},
-			PublishedAt: sql.NullTime{Time: publishedAt, Valid: errPub != nil},
+			PublishedAt: sql.NullTime{Time: publishedAt, Valid: errPub == nil},
 			FeedID:      nextFeed.ID,
 		})
 
