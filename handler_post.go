@@ -30,10 +30,13 @@ func handlerBrowse(state *state, command command, user database.User) error {
 		return fmt.Errorf("command %s: cannot get posts -> %w", command.name, err)
 	}
 
+	fmt.Printf("Found %d posts for user %s:\n", len(posts), user.Name)
 	for _, post := range posts {
-		fmt.Printf("* Title: %s\n", post.Title)
-		fmt.Printf("* PubDate: %v\n", post.PublishedAt.Time)
-		fmt.Printf("* Desc: %v\n", post.Description.String)
+		fmt.Printf("%s from %s\n", post.PublishedAt.Time.Format("Mon Jan 2"), post.FeedName)
+		fmt.Printf("--- %s ---\n", post.Title)
+		fmt.Printf("    %v\n", post.Description.String)
+		fmt.Printf("Link: %s\n", post.Url)
+		fmt.Println("=====================================")
 	}
 	return nil
 }

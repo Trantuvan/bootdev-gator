@@ -13,7 +13,7 @@ VALUES (
 RETURNING *;
 
 -- name: GetPostsByUser :many
-SELECT p.* FROM posts AS p
+SELECT p.*, f.name AS feed_name FROM posts AS p
     JOIN feeds AS f ON p.feed_id = f.id
     JOIN users AS u ON f.user_id = u.id
 WHERE u.id = $1
