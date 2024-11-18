@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -69,15 +70,15 @@ func scrapeFeeds(state *state) error {
 			Title:       item.Title,
 			Url:         item.Link,
 			Description: sql.NullString{String: item.Description, Valid: true},
-			PublishedAt: sql.NullTime{Time: publishedAt, Valid: errPub == nil},
+			PublishedAt: publishedAt,
 			FeedID:      nextFeed.ID,
 		})
 
-		if err != nil && err != ErrDupUrlKey {
+		if err != nil && !strings.Contains(err.Error(), ErrDupUrlKey.Error()) {
 			log.Printf("scrapeFeeds: cannot create post from url:%s -> %v", nextFeed.Url, err)
 		}
 	}
 
-	fmt.Printf("Feed %s collected, %v posts found", nextFeed.Name, len(feedData.Channel.Item))
+	fmt.Printf("Feed %s collected, %v posts found\n", nextFeed.Name, len(feedData.Channel.Item))
 	return nil
 }
